@@ -8,6 +8,7 @@ import (
 
 var (
 	ErrFileTypeNotAllowed = errors.New("FILE_TYPE_NOT_ALLOWED")
+	ErrFileNotFound       = errors.New("FILE_NOT_FOUND")
 )
 
 type FileType string
@@ -40,6 +41,7 @@ type File interface {
 type FileStorage interface {
 	Save(file File) (fileName string, err error)
 	Delete(fileName string) (err error)
+	Exists(fileName string) (exists bool, err error)
 }
 
 type FileService struct {
@@ -81,6 +83,21 @@ func (s *FileService) CreateFile(file File, userId string, fileType FileType) (*
 	}
 
 	return meta, nil
+}
+
+func (s *FileService) DeleteFile(fileName string) error {
+	storageErr := s.storage.Delete(fileName)
+	metaErr := s.metaRepo.Delete(fileName)
+
+	if storageErr != nil {
+		return storageErr
+	}
+
+	if metaErr != nil {
+		return metaErr
+	}
+
+	return nil
 }
 
 func (s *FileService) ValidateAllowedFileType(mimeType string, fileType FileType) error {
