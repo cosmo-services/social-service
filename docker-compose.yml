@@ -13,14 +13,14 @@ services:
       - PG_HOST=${PG_HOST}
       - PG_PORT=${PG_PORT}
     depends_on:
-      - postgres
+      - social-db
     volumes:
       - go-modules:/go/pkg/mod
     restart: unless-stopped
     networks:
       - app-network
 
-  postgres:
+  social-db:
     image: postgres:15
     env_file:
       - .env
@@ -32,7 +32,7 @@ services:
     ports:
       - "${PG_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - social-db_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - app-network
@@ -43,7 +43,7 @@ services:
       retries: 5
 
 volumes:
-  postgres_data:
+  social-db_data:
   go-modules:
 
 networks:
