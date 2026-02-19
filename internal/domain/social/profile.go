@@ -13,3 +13,7 @@ type ProfileRepository interface {
 	Delete(profileId string) error
 	GetById(profileId string) error
 }
+
+type ProfileService struct {
+	profileRepo ProfileRepository
+}
