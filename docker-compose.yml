@@ -41,9 +41,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  nats:
+    image: nats:latest
+    restart: unless-stopped
+    command: ["-js"]
+    volumes:
+      - nats_data:/data
+    environment:
+      - NATS_SERVER_NAME=cosmo-nats
+    networks:
+      - app-network
 
 volumes:
   social-db_data:
+  nats_data:
   go-modules:
 
 networks:

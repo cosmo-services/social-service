@@ -9,11 +9,11 @@ type ProfileService struct {
 
 func NewProfileService(
 	profileRepo ProfileRepository,
-	fileService *file.FileService,
+	//fileService *file.FileService,
 ) *ProfileService {
 	return &ProfileService{
 		profileRepo: profileRepo,
-		fileService: fileService,
+		//fileService: fileService,
 	}
 }
 
