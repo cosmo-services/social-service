@@ -18,7 +18,7 @@ func NewAuthMiddleware(jwtClient auth.JwtClient) *AuthMiddleware {
 	}
 }
 
-func (m *AuthMiddleware) Handler() gin.HandlerFunc {
+func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 

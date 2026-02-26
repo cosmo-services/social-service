@@ -30,3 +30,50 @@ func (s *ProfileService) CreateProfile(userId string, username string, email str
 
 	return nil
 }
+
+func (s *ProfileService) GetOwnProfile(userId string) (*ProfileView, error) {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.profileToFullView(profile), nil
+}
+
+func (s *ProfileService) GetUserProfile(requestingUserId string, targetUsername string) (*ProfileView, error) {
+	profile, err := s.profileRepo.GetByUsername(targetUsername)
+	if err != nil {
+		return nil, err
+	}
+
+	if requestingUserId == profile.UserId {
+		return s.profileToFullView(profile), nil
+	}
+
+	return s.profileToUserView(profile), nil
+}
+
+func (s *ProfileService) profileToFullView(profile *Profile) *ProfileView {
+	return &ProfileView{
+		ID:          profile.ID,
+		UserId:      profile.UserId,
+		Username:    profile.Username,
+		Email:       profile.Email,
+		DisplayName: profile.DisplayName,
+		AvatarUrl:   profile.AvatarUrl,
+		IsActive:    profile.IsActive,
+		IsDeleted:   profile.IsDeleted,
+		CreatedAt:   profile.CreatedAt,
+	}
+}
+
+func (s *ProfileService) profileToUserView(profile *Profile) *ProfileView {
+	return &ProfileView{
+		ID:          profile.ID,
+		UserId:      profile.UserId,
+		Username:    profile.Username,
+		DisplayName: profile.DisplayName,
+		AvatarUrl:   profile.AvatarUrl,
+		IsDeleted:   profile.IsDeleted,
+	}
+}

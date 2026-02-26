@@ -9,15 +9,14 @@ import (
 
 	auth_infrastructure "main/internal/infrastructure/auth"
 	profile_infrastructure "main/internal/infrastructure/profile"
-	test_infrastructure "main/internal/infrastructure/test"
 
 	//file_domain "main/internal/domain/file"
 	profile_domain "main/internal/domain/profile"
 
 	auth_api "main/internal/application/api/v2/auth"
 	health_api "main/internal/application/api/v2/health"
+	profile_api "main/internal/application/api/v2/profile"
 	swagger_api "main/internal/application/api/v2/swagger"
-	test_api "main/internal/application/api/v2/test"
 
 	nats "main/internal/application/nats"
 
@@ -33,7 +32,6 @@ var CommonModules = fx.Options(
 	//file_domain.Module,
 
 	auth_infrastructure.Module,
-	test_infrastructure.Module,
 	profile_infrastructure.Module,
 
 	api.Module,
@@ -41,6 +39,6 @@ var CommonModules = fx.Options(
 	nats.Module,
 	health_api.Module,
 	swagger_api.Module,
-	test_api.Module,
+	profile_api.Module,
 	auth_api.Module,
 )
