@@ -46,6 +46,10 @@ func (s *ProfileService) GetUserProfile(requestingUserId string, targetUsername 
 		return nil, err
 	}
 
+	if requestingUserId == "" {
+		return s.profileToPublicView(profile), nil
+	}
+
 	if requestingUserId == profile.UserId {
 		return s.profileToFullView(profile), nil
 	}
@@ -63,11 +67,22 @@ func (s *ProfileService) profileToFullView(profile *Profile) *ProfileView {
 		AvatarUrl:   profile.AvatarUrl,
 		IsActive:    profile.IsActive,
 		IsDeleted:   profile.IsDeleted,
-		CreatedAt:   profile.CreatedAt,
+		CreatedAt:   profile.CreatedAt.UTC().String(),
 	}
 }
 
 func (s *ProfileService) profileToUserView(profile *Profile) *ProfileView {
+	return &ProfileView{
+		ID:          profile.ID,
+		UserId:      profile.UserId,
+		Username:    profile.Username,
+		DisplayName: profile.DisplayName,
+		AvatarUrl:   profile.AvatarUrl,
+		IsDeleted:   profile.IsDeleted,
+	}
+}
+
+func (s *ProfileService) profileToPublicView(profile *Profile) *ProfileView {
 	return &ProfileView{
 		ID:          profile.ID,
 		UserId:      profile.UserId,

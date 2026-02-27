@@ -30,6 +30,11 @@ func (r *ProfileRoutes) Setup() {
 	protected.Use(r.authMiddleware.RequireAuth())
 	{
 		protected.GET("/me", r.profileController.GetOwnProfile)
-		protected.GET("/:username", r.profileController.GetUserProfile)
+	}
+
+	optional := api.Group("/")
+	optional.Use(r.authMiddleware.OptionalAuth())
+	{
+		optional.GET("/:username", r.profileController.GetUserProfile)
 	}
 }

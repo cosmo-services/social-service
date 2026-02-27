@@ -44,3 +44,31 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+func (m *AuthMiddleware) OptionalAuth() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authHeader := ctx.GetHeader("Authorization")
+
+		if authHeader == "" {
+			ctx.Next()
+			return
+		}
+
+		token, err := pkg.ParseBearerToken(authHeader)
+		if err != nil {
+			ctx.Next()
+			return
+		}
+
+		payload, err := m.jwtClient.ValidateToken(token)
+		if err != nil {
+			ctx.Next()
+			return
+		}
+
+		ctx.Set("user_id", payload.UserID)
+		ctx.Set("is_active", payload.IsActive)
+
+		ctx.Next()
+	}
+}
