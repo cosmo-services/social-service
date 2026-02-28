@@ -57,6 +57,34 @@ func (s *ProfileService) GetUserProfile(requestingUserId string, targetUsername 
 	return s.profileToUserView(profile), nil
 }
 
+func (s *ProfileService) UpdateEmail(userId string, newEmail string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	profile.Email = newEmail
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *ProfileService) UpdateUsername(userId string, newUsername string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	profile.Username = newUsername
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *ProfileService) profileToFullView(profile *Profile) *ProfileView {
 	return &ProfileView{
 		ID:          profile.ID,
