@@ -9,6 +9,7 @@ type Profile struct {
 	Email       string    `json:"email"`
 	DisplayName string    `json:"display_name"`
 	AvatarUrl   string    `json:"avatar_url"`
+	Bio         string    `json:"bio"`
 	IsActive    bool      `json:"is_active"`
 	IsDeleted   bool      `json:"is_deleted"`
 	CreatedAt   time.Time `json:"created_at"`

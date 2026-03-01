@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	domain "main/internal/domain/profile"
@@ -33,6 +32,7 @@ func (r *profileRepository) Create(profile *domain.Profile) error {
 		profile.Email,
 		profile.DisplayName,
 		profile.AvatarUrl,
+		profile.Bio,
 		profile.IsActive,
 		profile.IsDeleted,
 		profile.CreatedAt,
@@ -55,6 +55,7 @@ func (r *profileRepository) GetById(profileId string) (*domain.Profile, error) {
 		&profile.Email,
 		&profile.DisplayName,
 		&profile.AvatarUrl,
+		&profile.Bio,
 		&profile.IsActive,
 		&profile.IsDeleted,
 		&profile.CreatedAt,
@@ -80,6 +81,7 @@ func (r *profileRepository) GetByUserID(userID string) (*domain.Profile, error) 
 		&profile.Email,
 		&profile.DisplayName,
 		&profile.AvatarUrl,
+		&profile.Bio,
 		&profile.IsActive,
 		&profile.IsDeleted,
 		&profile.CreatedAt,
@@ -109,6 +111,7 @@ func (r *profileRepository) GetByUsername(username string) (*domain.Profile, err
 		&profile.Email,
 		&profile.DisplayName,
 		&profile.AvatarUrl,
+		&profile.Bio,
 		&profile.IsActive,
 		&profile.IsDeleted,
 		&profile.CreatedAt,
@@ -132,9 +135,10 @@ func (r *profileRepository) Update(profile *domain.Profile) error {
 		updateProfileQuery,
 		profile.ID,
 		profile.Username,
-		strings.ToLower(profile.Email),
+		profile.Email,
 		profile.DisplayName,
 		profile.AvatarUrl,
+		profile.Bio,
 		profile.IsActive,
 		profile.IsDeleted,
 		profile.UpdatedAt,
