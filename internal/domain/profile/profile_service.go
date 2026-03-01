@@ -85,6 +85,40 @@ func (s *ProfileService) UpdateUsername(userId string, newUsername string) error
 	return nil
 }
 
+func (s *ProfileService) ChangeBio(userId string, newBio string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	if err := profile.ChangeBio(newBio); err != nil {
+		return err
+	}
+
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *ProfileService) ChangeDisplayName(userId string, newDisplayName string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	if err := profile.ChangeDisplayName(newDisplayName); err != nil {
+		return err
+	}
+
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *ProfileService) profileToFullView(profile *Profile) *ProfileView {
 	return &ProfileView{
 		ID:          profile.ID,
