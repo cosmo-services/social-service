@@ -19,9 +19,10 @@ func NewProfileService(
 
 func (s *ProfileService) CreateProfile(userId string, username string, email string) error {
 	profile := &Profile{
-		UserId:   userId,
-		Username: username,
-		Email:    email,
+		UserId:      userId,
+		Username:    username,
+		Email:       email,
+		DisplayName: username,
 	}
 
 	if err := s.profileRepo.Create(profile); err != nil {
@@ -29,15 +30,6 @@ func (s *ProfileService) CreateProfile(userId string, username string, email str
 	}
 
 	return nil
-}
-
-func (s *ProfileService) GetOwnProfile(userId string) (*ProfileView, error) {
-	profile, err := s.profileRepo.GetByUserID(userId)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.profileToFullView(profile), nil
 }
 
 func (s *ProfileService) GetUserProfile(requestingUserId string, targetUsername string) (*ProfileView, error) {
@@ -127,6 +119,7 @@ func (s *ProfileService) profileToFullView(profile *Profile) *ProfileView {
 		Email:       profile.Email,
 		DisplayName: profile.DisplayName,
 		AvatarUrl:   profile.AvatarUrl,
+		Bio:         profile.Bio,
 		IsActive:    profile.IsActive,
 		IsDeleted:   profile.IsDeleted,
 		CreatedAt:   profile.CreatedAt.UTC().String(),
@@ -139,8 +132,10 @@ func (s *ProfileService) profileToUserView(profile *Profile) *ProfileView {
 		UserId:      profile.UserId,
 		Username:    profile.Username,
 		DisplayName: profile.DisplayName,
+		Bio:         profile.Bio,
 		AvatarUrl:   profile.AvatarUrl,
 		IsDeleted:   profile.IsDeleted,
+		CreatedAt:   profile.CreatedAt.UTC().String(),
 	}
 }
 
@@ -150,7 +145,9 @@ func (s *ProfileService) profileToPublicView(profile *Profile) *ProfileView {
 		UserId:      profile.UserId,
 		Username:    profile.Username,
 		DisplayName: profile.DisplayName,
+		Bio:         profile.Bio,
 		AvatarUrl:   profile.AvatarUrl,
 		IsDeleted:   profile.IsDeleted,
+		CreatedAt:   profile.CreatedAt.UTC().String(),
 	}
 }

@@ -3,7 +3,7 @@ package profile_infrastructure
 const (
 	createProfileQuery = `
 		INSERT INTO profiles (id, user_id, username, email, display_name, avatar_url, bio, is_active, is_deleted, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id
 	`
 
