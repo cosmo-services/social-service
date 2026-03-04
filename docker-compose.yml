@@ -13,14 +13,14 @@ services:
       - PG_HOST=${PG_HOST}
       - PG_PORT=${PG_PORT}
     depends_on:
-      - postgres
+      - social-db
     volumes:
       - go-modules:/go/pkg/mod
     restart: unless-stopped
     networks:
       - app-network
 
-  postgres:
+  social-db:
     image: postgres:15
     env_file:
       - .env
@@ -32,7 +32,7 @@ services:
     ports:
       - "${PG_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - social-db_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
       - app-network
@@ -41,9 +41,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  nats:
+    image: nats:latest
+    restart: unless-stopped
+    command: ["-js"]
+    volumes:
+      - nats_data:/data
+    environment:
+      - NATS_SERVER_NAME=cosmo-nats
+    networks:
+      - app-network
 
 volumes:
-  postgres_data:
+  social-db_data:
+  nats_data:
   go-modules:
 
 networks:

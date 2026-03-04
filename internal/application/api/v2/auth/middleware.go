@@ -18,7 +18,7 @@ func NewAuthMiddleware(jwtClient auth.JwtClient) *AuthMiddleware {
 	}
 }
 
-func (m *AuthMiddleware) Handler() gin.HandlerFunc {
+func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 
@@ -27,6 +27,31 @@ func (m *AuthMiddleware) Handler() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": err.Error(),
 			})
+			return
+		}
+
+		payload, err := m.jwtClient.ValidateToken(token)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		ctx.Set("user_id", payload.UserID)
+		ctx.Set("is_active", payload.IsActive)
+
+		ctx.Next()
+	}
+}
+
+func (m *AuthMiddleware) OptionalAuth() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authHeader := ctx.GetHeader("Authorization")
+
+		token, err := pkg.ParseBearerToken(authHeader)
+		if err != nil {
+			ctx.Next()
 			return
 		}
 

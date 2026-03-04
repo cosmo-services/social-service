@@ -19,6 +19,11 @@ type Env struct {
 	PGPass string `mapstructure:"PG_PASS"`
 	PGName string `mapstructure:"PG_NAME"`
 
+	NatsHost string `mapstructure:"NATS_HOST"`
+	NatsPort string `mapstructure:"NATS_PORT"`
+	NatsName string `mapstructure:"NATS_NAME"`
+	NatsChan string `mapstructure:"NATS_CHAN"`
+
 	AppDomain string `mapstructure:"APP_DOMAIN"`
 
 	MigrationPath string `mapstructure:"MIGRATION_PATH"`
@@ -68,6 +73,11 @@ func (e *Env) bindEnv() {
 	e.PGUser = os.Getenv("PG_USER")
 	e.PGPass = os.Getenv("PG_PASS")
 	e.PGName = os.Getenv("PG_NAME")
+
+	e.NatsHost = os.Getenv("NATS_HOST")
+	e.NatsPort = os.Getenv("NATS_PORT")
+	e.NatsName = os.Getenv("NATS_NAME")
+	e.NatsChan = os.Getenv("NATS_CHAN")
 
 	e.AppDomain = os.Getenv("APP_DOMAIN")
 

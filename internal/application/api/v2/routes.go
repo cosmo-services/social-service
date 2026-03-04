@@ -2,8 +2,8 @@ package api
 
 import (
 	health_api "main/internal/application/api/v2/health"
+	profile_api "main/internal/application/api/v2/profile"
 	swagger_api "main/internal/application/api/v2/swagger"
-	test_api "main/internal/application/api/v2/test"
 
 	"go.uber.org/fx"
 )
@@ -17,12 +17,12 @@ type Routes []Route
 func NewRoutes(
 	healthRoutes *health_api.HealthRoutes,
 	swaggerRoutes *swagger_api.SwaggerRoutes,
-	testRoutes *test_api.TestRoutes,
+	profileRoutes *profile_api.ProfileRoutes,
 ) Routes {
 	return Routes{
 		healthRoutes,
 		swaggerRoutes,
-		testRoutes,
+		profileRoutes,
 	}
 }
 
