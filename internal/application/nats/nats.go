@@ -26,6 +26,7 @@ func (n *Nats) SetupSubscribers() {
 	n.natsClient.Subscribe("AUTH_STREAM", "auth.user.email.changed", n.profileSubscribeHandler.OnUserEmailChanged)
 	n.natsClient.Subscribe("AUTH_STREAM", "auth.user.username.changed", n.profileSubscribeHandler.OnUserUsernameChanged)
 	n.natsClient.Subscribe("AUTH_STREAM", "auth.user.activated", n.profileSubscribeHandler.OnUserActivated)
+	n.natsClient.Subscribe("AUTH_STREAM", "auth.user.deleted", n.profileSubscribeHandler.OnUserDeleted)
 }
 
 var Module = fx.Options(
