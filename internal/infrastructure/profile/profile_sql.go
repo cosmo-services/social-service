@@ -43,4 +43,10 @@ const (
 		SET is_deleted = true, updated_at = $2 
 		WHERE id = $1 AND is_deleted = false
 	`
+
+	deleteProfileByUserIdQuery = `
+		UPDATE profiles 
+		SET is_deleted = true, updated_at = $2 
+		WHERE user_id = $1 AND is_deleted = false
+	`
 )

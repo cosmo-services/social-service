@@ -121,6 +121,14 @@ func (s *ProfileService) ChangeDisplayName(userId string, newDisplayName string)
 	return nil
 }
 
+func (s *ProfileService) DeleteProfile(userId string) error {
+	if err := s.profileRepo.DeleteByUserId(userId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *ProfileService) profileToView(requestingUserId string, profile *Profile) (*ProfileView, error) {
 	if requestingUserId == "" {
 		return s.profileToPublicView(profile), nil

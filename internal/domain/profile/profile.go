@@ -9,6 +9,7 @@ type ProfileRepository interface {
 	Create(profile *Profile) error
 	Update(profile *Profile) error
 	Delete(profileId string) error
+	DeleteByUserId(userId string) error
 	GetById(profileId string) (*Profile, error)
 	GetByUserID(userID string) (*Profile, error)
 	GetByUsername(username string) (*Profile, error)

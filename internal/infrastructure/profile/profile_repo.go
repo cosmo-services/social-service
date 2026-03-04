@@ -170,6 +170,20 @@ func (r *profileRepository) Delete(profileId string) error {
 	return nil
 }
 
+func (r *profileRepository) DeleteByUserId(userId string) error {
+	result, err := r.db.Exec(deleteProfileByUserIdQuery, userId, time.Now().UTC())
+	if err != nil {
+		return fmt.Errorf("failed to delete profile: %w", err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return domain.ErrProfileNotFound
+	}
+
+	return nil
+}
+
 func generateProfileID() string {
 	return fmt.Sprintf("prof_%d", time.Now().UnixNano())
 }
