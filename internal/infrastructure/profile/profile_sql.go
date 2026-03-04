@@ -27,8 +27,14 @@ const (
 
 	updateProfileQuery = `
 		UPDATE profiles 
-		SET username = $2, email = $3, display_name = $4, avatar_url = $5, bio = $6
-		    is_active = $7, is_deleted = $8, updated_at = $9
+		SET username = $2, 
+			email = $3, 
+			display_name = $4, 
+			avatar_url = $5, 
+			bio = $6,
+		    is_active = $7, 
+			is_deleted = $8, 
+			updated_at = $9
 		WHERE id = $1 AND is_deleted = false
 	`
 

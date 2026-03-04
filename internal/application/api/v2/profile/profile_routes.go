@@ -29,13 +29,14 @@ func (r *ProfileRoutes) Setup() {
 	protected := api.Group("/")
 	protected.Use(r.authMiddleware.RequireAuth())
 	{
+		protected.GET("/me", r.profileController.GetOwnProfile)
 		protected.POST("/bio", r.profileController.ChangeBio)
-		protected.POST("/displayname", r.profileController.ChangeBio)
+		protected.POST("/displayname", r.profileController.ChangeDisplayName)
 	}
 
 	optional := api.Group("/")
 	optional.Use(r.authMiddleware.OptionalAuth())
 	{
-		optional.GET("/:username", r.profileController.GetUserProfile)
+		optional.GET("/", r.profileController.GetUserProfile)
 	}
 }

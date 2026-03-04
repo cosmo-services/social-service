@@ -24,24 +24,75 @@ func NewProfileController(
 	}
 }
 
-// GetUserProfile godoc
+// GetOwnProfile godoc
 //
-// @Summary Get user profile
-// @Description Get user's profile data.
+// @Summary Get current user profile
+// @Description Get the authenticated user's profile data.
 // @Tags profile
 // @Accept  json
 // @Produce json
 // @Security BearerAuth
-// @Param username path string true "Username"
 // @Success 200 {object} profile.Profile
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Failure 404 {object} map[string]string "Profile not found"
-// @Router /profile/{username} [get]
+// @Failure 401 {object} map[string]string "User unauthorized"
+// @Router /profile/me [get]
+func (controller *ProfileController) GetOwnProfile(ctx *gin.Context) {
+	requestingUserId := ctx.GetString("user_id")
+	targetUserId := requestingUserId
+
+	profile, err := controller.profileService.GetProfileById(requestingUserId, targetUserId)
+	if err != nil {
+		if errors.Is(err, profile_domain.ErrProfileNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, profile)
+}
+
+// GetUserProfile godoc
+//
+// @Summary Get user profile
+// @Description Get user's profile data by ID or username.
+// @Tags profile
+// @Accept  json
+// @Produce json
+// @Security BearerAuth
+// @Param user_id query string false "User ID"
+// @Param username query string false "Username"
+// @Success 200 {object} profile.Profile
+// @Failure 400 {object} map[string]string "Bad request - missing both parameters or both provided"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Failure 404 {object} map[string]string "Profile not found"
+// @Router /profile [get]
 func (controller *ProfileController) GetUserProfile(ctx *gin.Context) {
 	requestingUserId := ctx.GetString("user_id")
-	targetUsername := ctx.Param("username")
+	targetUserId := ctx.Query("user_id")
+	targetUsername := ctx.Query("username")
 
-	profile, err := controller.profileService.GetUserProfile(requestingUserId, targetUsername)
+	if targetUserId == "" && targetUsername == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "either user_id or username query parameter is required"})
+		return
+	}
+
+	if targetUserId != "" && targetUsername != "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "provide only one: user_id or username, not both"})
+		return
+	}
+
+	var profile *profile_domain.ProfileView
+	var err error
+
+	if targetUserId != "" {
+		profile, err = controller.profileService.GetProfileById(requestingUserId, targetUserId)
+	} else {
+		profile, err = controller.profileService.GetProfileByUsername(requestingUserId, targetUsername)
+	}
+
 	if err != nil {
 		if errors.Is(err, profile_domain.ErrProfileNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -83,6 +134,10 @@ func (controller *ProfileController) ChangeBio(ctx *gin.Context) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
 		}
+		if errors.Is(err, profile_domain.ErrLongBio) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -119,6 +174,10 @@ func (controller *ProfileController) ChangeDisplayName(ctx *gin.Context) {
 	if err := controller.profileService.ChangeDisplayName(userId, req.NewDisplayName); err != nil {
 		if errors.Is(err, profile_domain.ErrProfileNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		if errors.Is(err, profile_domain.ErrLongDisplayName) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

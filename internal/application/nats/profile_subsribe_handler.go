@@ -80,3 +80,22 @@ func (p *ProfileSubscribeHandler) OnUserUsernameChanged(msg *nats.Msg) error {
 
 	return nil
 }
+
+func (p *ProfileSubscribeHandler) OnUserActivated(msg *nats.Msg) error {
+	var event UserActivateEvent
+	if err := json.Unmarshal(msg.Data, &event); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	if err := p.profileService.Activate(event.UserID); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	p.logger.Infof("Profile activated by user event: %s", event)
+
+	return nil
+}

@@ -1,19 +1,14 @@
 package profile
 
-import "main/internal/domain/file"
-
 type ProfileService struct {
 	profileRepo ProfileRepository
-	fileService *file.FileService
 }
 
 func NewProfileService(
 	profileRepo ProfileRepository,
-	//fileService *file.FileService,
 ) *ProfileService {
 	return &ProfileService{
 		profileRepo: profileRepo,
-		//fileService: fileService,
 	}
 }
 
@@ -32,21 +27,36 @@ func (s *ProfileService) CreateProfile(userId string, username string, email str
 	return nil
 }
 
-func (s *ProfileService) GetUserProfile(requestingUserId string, targetUsername string) (*ProfileView, error) {
+func (s *ProfileService) GetProfileById(requestingUserId string, targetUserId string) (*ProfileView, error) {
+	profile, err := s.profileRepo.GetByUserID(targetUserId)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.profileToView(requestingUserId, profile)
+}
+
+func (s *ProfileService) GetProfileByUsername(requestingUserId string, targetUsername string) (*ProfileView, error) {
 	profile, err := s.profileRepo.GetByUsername(targetUsername)
 	if err != nil {
 		return nil, err
 	}
 
-	if requestingUserId == "" {
-		return s.profileToPublicView(profile), nil
+	return s.profileToView(requestingUserId, profile)
+}
+
+func (s *ProfileService) Activate(userId string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
 	}
 
-	if requestingUserId == profile.UserId {
-		return s.profileToFullView(profile), nil
+	profile.IsActive = true
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
 	}
 
-	return s.profileToUserView(profile), nil
+	return nil
 }
 
 func (s *ProfileService) UpdateEmail(userId string, newEmail string) error {
@@ -109,6 +119,18 @@ func (s *ProfileService) ChangeDisplayName(userId string, newDisplayName string)
 	}
 
 	return nil
+}
+
+func (s *ProfileService) profileToView(requestingUserId string, profile *Profile) (*ProfileView, error) {
+	if requestingUserId == "" {
+		return s.profileToPublicView(profile), nil
+	}
+
+	if requestingUserId == profile.UserId {
+		return s.profileToFullView(profile), nil
+	}
+
+	return s.profileToUserView(profile), nil
 }
 
 func (s *ProfileService) profileToFullView(profile *Profile) *ProfileView {
