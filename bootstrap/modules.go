@@ -10,7 +10,6 @@ import (
 	auth_infrastructure "main/internal/infrastructure/auth"
 	profile_infrastructure "main/internal/infrastructure/profile"
 
-	//file_domain "main/internal/domain/file"
 	profile_domain "main/internal/domain/profile"
 
 	auth_api "main/internal/application/api/v2/auth"
@@ -29,7 +28,6 @@ var CommonModules = fx.Options(
 	domain.Module,
 
 	profile_domain.Module,
-	//file_domain.Module,
 
 	auth_infrastructure.Module,
 	profile_infrastructure.Module,
