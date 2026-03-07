@@ -67,6 +67,20 @@ func (s *ProfileService) Activate(userId string) error {
 	return nil
 }
 
+func (s *ProfileService) Deactivate(userId string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	profile.IsActive = false
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *ProfileService) UpdateEmail(userId string, newEmail string) error {
 	profile, err := s.profileRepo.GetByUserID(userId)
 	if err != nil {

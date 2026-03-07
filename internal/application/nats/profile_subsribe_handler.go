@@ -105,6 +105,25 @@ func (p *ProfileSubscribeHandler) OnUserActivated(msg *nats.Msg) error {
 	return nil
 }
 
+func (p *ProfileSubscribeHandler) OnUserDeactivated(msg *nats.Msg) error {
+	var event UserDeactivateEvent
+	if err := json.Unmarshal(msg.Data, &event); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	if err := p.profileService.Deactivate(event.UserID); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	p.logger.Infof("Profile deactivated by user event: %s", event)
+
+	return nil
+}
+
 func (p *ProfileSubscribeHandler) OnUserDeleted(msg *nats.Msg) error {
 	var event UserDeleteEvent
 	if err := json.Unmarshal(msg.Data, &event); err != nil {
