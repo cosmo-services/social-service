@@ -1,14 +1,22 @@
 package profile
 
+import (
+	"main/internal/domain"
+	"time"
+)
+
 type ProfileService struct {
 	profileRepo ProfileRepository
+	eventBus    *domain.EventBus
 }
 
 func NewProfileService(
 	profileRepo ProfileRepository,
+	eventBus *domain.EventBus,
 ) *ProfileService {
 	return &ProfileService{
 		profileRepo: profileRepo,
+		eventBus:    eventBus,
 	}
 }
 
@@ -100,6 +108,62 @@ func (s *ProfileService) ChangeBio(userId string, newBio string) error {
 	if err := s.profileRepo.Update(profile); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (s *ProfileService) ChangeAvatar(userId string, newAvatar string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	oldAvatar := profile.AvatarUrl
+	if err := profile.ChangeAvatar(newAvatar); err != nil {
+		return err
+	}
+
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	s.eventBus.Emit("avatar.changed", ProfileAvatarChangedEvent{
+		NewAvatar: newAvatar,
+		ChangedAt: time.Now(),
+	})
+
+	s.eventBus.Emit("avatar.orphaned", FileOrphanedEvent{
+		FilePath:   oldAvatar,
+		OrphanedAt: time.Now(),
+	})
+
+	return nil
+}
+
+func (s *ProfileService) DeleteAvatar(userId string, newAvatar string) error {
+	profile, err := s.profileRepo.GetByUserID(userId)
+	if err != nil {
+		return err
+	}
+
+	oldAvatar := profile.AvatarUrl
+	if err := profile.ChangeAvatar(newAvatar); err != nil {
+		return err
+	}
+
+	if err := s.profileRepo.Update(profile); err != nil {
+		return err
+	}
+
+	s.eventBus.Emit("avatar.changed", ProfileAvatarChangedEvent{
+		NewAvatar: newAvatar,
+		ChangedAt: time.Now(),
+	})
+
+	s.eventBus.Emit("avatar.orphaned", FileOrphanedEvent{
+		FilePath:   oldAvatar,
+		OrphanedAt: time.Now(),
+	})
 
 	return nil
 }

@@ -2,6 +2,7 @@ package nats
 
 import (
 	"encoding/json"
+	"main/internal/config"
 	"main/internal/domain/profile"
 	"main/pkg"
 
@@ -11,12 +12,16 @@ import (
 type ProfileSubscribeHandler struct {
 	logger         pkg.Logger
 	profileService *profile.ProfileService
+
+	fileUrl string
 }
 
-func NewProfileSubscribeHandler(profileService *profile.ProfileService, logger pkg.Logger) *ProfileSubscribeHandler {
+func NewProfileSubscribeHandler(profileService *profile.ProfileService, logger pkg.Logger, env config.Env) *ProfileSubscribeHandler {
 	return &ProfileSubscribeHandler{
 		profileService: profileService,
 		logger:         logger,
+
+		fileUrl: env.FileUrl,
 	}
 }
 
@@ -115,6 +120,50 @@ func (p *ProfileSubscribeHandler) OnUserDeleted(msg *nats.Msg) error {
 	}
 
 	p.logger.Infof("Profile deleted by user event: %s", event)
+
+	return nil
+}
+
+func (p *ProfileSubscribeHandler) OnAvatarUploaded(msg *nats.Msg) error {
+	var event AvatarUploadedEvent
+	if err := json.Unmarshal(msg.Data, &event); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	filePath := p.fileUrl + event.Directory + "/" + event.FileName
+	if err := p.profileService.ChangeAvatar(event.UserID, filePath); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	p.logger.Infof("Profile avatar updated by file event: %s", event)
+
+	return nil
+}
+
+func (p *ProfileSubscribeHandler) OnAvatarDeleted(msg *nats.Msg) error {
+	var event UserFileDeletedEvent
+	if err := json.Unmarshal(msg.Data, &event); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	if event.Directory != "avatar" {
+		return nil
+	}
+
+	filePath := p.fileUrl + event.Directory + "/" + event.FileName
+	if err := p.profileService.ChangeAvatar(event.UserID, filePath); err != nil {
+		p.logger.Error(err)
+
+		return err
+	}
+
+	p.logger.Infof("Profile avatar deleted by file event: %s", event)
 
 	return nil
 }

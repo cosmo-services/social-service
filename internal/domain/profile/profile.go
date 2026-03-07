@@ -44,3 +44,11 @@ func (p *Profile) ChangeDisplayName(displayName string) error {
 	p.DisplayName = displayName
 	return nil
 }
+
+func (p *Profile) ChangeAvatar(newAvatar string) error {
+	if !p.IsActive {
+		return ErrNotActivated
+	}
+	p.AvatarUrl = newAvatar
+	return nil
+}

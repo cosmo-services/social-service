@@ -25,6 +25,7 @@ type Env struct {
 	NatsChan string `mapstructure:"NATS_CHAN"`
 
 	AppDomain string `mapstructure:"APP_DOMAIN"`
+	FileUrl   string `mapstructure:"FILE_URL"`
 
 	MigrationPath string `mapstructure:"MIGRATION_PATH"`
 
@@ -80,6 +81,7 @@ func (e *Env) bindEnv() {
 	e.NatsChan = os.Getenv("NATS_CHAN")
 
 	e.AppDomain = os.Getenv("APP_DOMAIN")
+	e.FileUrl = os.Getenv("FILE_URL")
 
 	e.JwtSecret = os.Getenv("JWT_SECRET")
 
