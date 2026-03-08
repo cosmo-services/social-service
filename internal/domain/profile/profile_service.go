@@ -53,55 +53,16 @@ func (s *ProfileService) GetProfileByUsername(requestingUserId string, targetUse
 	return s.profileToView(requestingUserId, profile)
 }
 
-func (s *ProfileService) Activate(userId string) error {
+func (s *ProfileService) UpdateUser(userId string, username string, email string, isActive bool) error {
 	profile, err := s.profileRepo.GetByUserID(userId)
 	if err != nil {
 		return err
 	}
 
-	profile.IsActive = true
-	if err := s.profileRepo.Update(profile); err != nil {
-		return err
-	}
+	profile.Username = username
+	profile.IsActive = isActive
+	profile.Email = email
 
-	return nil
-}
-
-func (s *ProfileService) Deactivate(userId string) error {
-	profile, err := s.profileRepo.GetByUserID(userId)
-	if err != nil {
-		return err
-	}
-
-	profile.IsActive = false
-	if err := s.profileRepo.Update(profile); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *ProfileService) UpdateEmail(userId string, newEmail string) error {
-	profile, err := s.profileRepo.GetByUserID(userId)
-	if err != nil {
-		return err
-	}
-
-	profile.Email = newEmail
-	if err := s.profileRepo.Update(profile); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *ProfileService) UpdateUsername(userId string, newUsername string) error {
-	profile, err := s.profileRepo.GetByUserID(userId)
-	if err != nil {
-		return err
-	}
-
-	profile.Username = newUsername
 	if err := s.profileRepo.Update(profile); err != nil {
 		return err
 	}

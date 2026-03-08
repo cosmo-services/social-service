@@ -48,78 +48,21 @@ func (p *ProfileSubscribeHandler) OnUserRegistered(msg *nats.Msg) error {
 	return nil
 }
 
-func (p *ProfileSubscribeHandler) OnUserEmailChanged(msg *nats.Msg) error {
-	var event UserChangeEmailEvent
+func (p *ProfileSubscribeHandler) OnUserUpdated(msg *nats.Msg) error {
+	var event UserUpdatedEvent
 	if err := json.Unmarshal(msg.Data, &event); err != nil {
 		p.logger.Error(err)
 
 		return err
 	}
 
-	if err := p.profileService.UpdateEmail(event.UserID, event.NewEmail); err != nil {
+	if err := p.profileService.UpdateUser(event.UserID, event.Username, event.Email, event.IsActive); err != nil {
 		p.logger.Error(err)
 
 		return err
 	}
 
 	p.logger.Infof("Profile email updated by user event: %s", event)
-
-	return nil
-}
-
-func (p *ProfileSubscribeHandler) OnUserUsernameChanged(msg *nats.Msg) error {
-	var event UserChangeUsernameEvent
-	if err := json.Unmarshal(msg.Data, &event); err != nil {
-		p.logger.Error(err)
-
-		return err
-	}
-
-	if err := p.profileService.UpdateUsername(event.UserID, event.NewUsername); err != nil {
-		p.logger.Error(err)
-
-		return err
-	}
-
-	p.logger.Infof("Profile username updated by user event: %s", event)
-
-	return nil
-}
-
-func (p *ProfileSubscribeHandler) OnUserActivated(msg *nats.Msg) error {
-	var event UserActivateEvent
-	if err := json.Unmarshal(msg.Data, &event); err != nil {
-		p.logger.Error(err)
-
-		return err
-	}
-
-	if err := p.profileService.Activate(event.UserID); err != nil {
-		p.logger.Error(err)
-
-		return err
-	}
-
-	p.logger.Infof("Profile activated by user event: %s", event)
-
-	return nil
-}
-
-func (p *ProfileSubscribeHandler) OnUserDeactivated(msg *nats.Msg) error {
-	var event UserDeactivateEvent
-	if err := json.Unmarshal(msg.Data, &event); err != nil {
-		p.logger.Error(err)
-
-		return err
-	}
-
-	if err := p.profileService.Deactivate(event.UserID); err != nil {
-		p.logger.Error(err)
-
-		return err
-	}
-
-	p.logger.Infof("Profile deactivated by user event: %s", event)
 
 	return nil
 }
