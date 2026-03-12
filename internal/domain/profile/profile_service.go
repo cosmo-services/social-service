@@ -1,21 +1,28 @@
 package profile
 
 import (
+	"errors"
 	"main/internal/domain"
+
+	user_domain "main/internal/domain/user"
+
 	"time"
 )
 
 type ProfileService struct {
 	profileRepo ProfileRepository
+	userClient  user_domain.UserClient
 	eventBus    *domain.EventBus
 }
 
 func NewProfileService(
 	profileRepo ProfileRepository,
+	userClient user_domain.UserClient,
 	eventBus *domain.EventBus,
 ) *ProfileService {
 	return &ProfileService{
 		profileRepo: profileRepo,
+		userClient:  userClient,
 		eventBus:    eventBus,
 	}
 }
@@ -35,9 +42,40 @@ func (s *ProfileService) CreateProfile(userId string, username string, email str
 	return nil
 }
 
-func (s *ProfileService) GetProfile(userID string) (*Profile, error) {
-	profile, err := s.profileRepo.GetByUserID(userID)
+func (s *ProfileService) GetProfile(opts ProfileSearchOptions) (*Profile, error) {
+	var profile *Profile
+	var err error
+
+	if opts.UserID != "" {
+		profile, err = s.profileRepo.GetByUserID(opts.UserID)
+	} else if opts.Username != "" {
+		profile, err = s.profileRepo.GetByUsername(opts.Username)
+	} else if opts.ProfileID != "" {
+		profile, err = s.profileRepo.GetById(opts.ProfileID)
+	}
+
+	if err == nil {
+		return profile, nil
+	}
+
+	if !errors.Is(err, ErrProfileNotFound) {
+		return nil, err
+	}
+
+	var user *user_domain.User
+	if opts.UserID != "" {
+		user, err = s.userClient.GetUserById(opts.UserID)
+	} else if opts.Username != "" {
+		user, err = s.userClient.GetUserByUsername(opts.Username)
+	}
+
 	if err != nil {
+		return nil, err
+	}
+
+	profile = MapUserToProfile(user)
+
+	if err := s.profileRepo.Create(profile); err != nil {
 		return nil, err
 	}
 
@@ -45,7 +83,7 @@ func (s *ProfileService) GetProfile(userID string) (*Profile, error) {
 }
 
 func (s *ProfileService) GetProfileViewById(requestingUserId string, targetUserId string) (*ProfileView, error) {
-	profile, err := s.profileRepo.GetByUserID(targetUserId)
+	profile, err := s.GetProfile(ProfileSearchOptions{UserID: targetUserId})
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +92,7 @@ func (s *ProfileService) GetProfileViewById(requestingUserId string, targetUserI
 }
 
 func (s *ProfileService) GetProfileViewByUsername(requestingUserId string, targetUsername string) (*ProfileView, error) {
-	profile, err := s.profileRepo.GetByUsername(targetUsername)
+	profile, err := s.GetProfile(ProfileSearchOptions{Username: targetUsername})
 	if err != nil {
 		return nil, err
 	}
@@ -228,4 +266,22 @@ func (s *ProfileService) profileToPublicView(profile *Profile) *ProfileView {
 		IsDeleted:   profile.IsDeleted,
 		CreatedAt:   profile.CreatedAt.UTC().String(),
 	}
+}
+
+func (s *ProfileService) requestProfileByUserId(userId string) (*Profile, error) {
+	user, err := s.userClient.GetUserById(userId)
+	if err != nil {
+		return nil, err
+	}
+	profile := MapUserToProfile(user)
+	return profile, nil
+}
+
+func (s *ProfileService) requestProfileByUsername(username string) (*Profile, error) {
+	user, err := s.userClient.GetUserByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	profile := MapUserToProfile(user)
+	return profile, nil
 }

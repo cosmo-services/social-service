@@ -34,7 +34,7 @@ func (h *SocialHandler) GetUserProfile(
 		return nil, status.Error(codes.InvalidArgument, "user_id is required")
 	}
 
-	p, err := h.profileService.GetProfile(req.UserId)
+	p, err := h.profileService.GetProfile(profile_domain.ProfileSearchOptions{UserID: req.UserId})
 	if err != nil {
 		if errors.Is(err, profile_domain.ErrProfileNotFound) {
 			return nil, status.Error(codes.NotFound, "profile not found")

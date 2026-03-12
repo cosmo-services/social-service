@@ -1,5 +1,6 @@
 package user
 
 type UserClient interface {
-	GetUser(userId string) (*User, error)
+	GetUserById(userId string) (*User, error)
+	GetUserByUsername(username string) (*User, error)
 }

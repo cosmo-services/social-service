@@ -10,4 +10,5 @@ var Module = fx.Options(
 	fx.Provide(NewPostgresDatabase),
 	fx.Provide(NewNatsClient),
 	fx.Provide(NewGrpcServer),
+	fx.Provide(NewGrpcClient),
 )

@@ -22,7 +22,7 @@ type UserGrpcClient struct {
 	timeout time.Duration
 }
 
-func NewUserGrpcClient(grpcClient pkg.GrpcClient, env config.Env) (user_domain.UserClient, error) {
+func NewUserGrpcClient(grpcClient *pkg.GrpcClient, env config.Env) (user_domain.UserClient, error) {
 	conn, err := grpcClient.Connect(env.AuthServiceGrpcAddress)
 	if err != nil {
 		return nil, err
@@ -35,16 +35,33 @@ func NewUserGrpcClient(grpcClient pkg.GrpcClient, env config.Env) (user_domain.U
 	}, nil
 }
 
-func (c *UserGrpcClient) GetUser(userId string) (*user_domain.User, error) {
+func (c *UserGrpcClient) GetUserById(userId string) (*user_domain.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 
 	defer cancel()
 
-	req := &pb.GetUserRequest{
+	req := &pb.GetUserByIdRequest{
 		UserId: userId,
 	}
 
-	resp, err := c.client.GetUser(ctx, req)
+	resp, err := c.client.GetUserById(ctx, req)
+	if err != nil {
+		return nil, c.mapGRPCError(err)
+	}
+
+	return c.mapToDomainUser(resp), nil
+}
+
+func (c *UserGrpcClient) GetUserByUsername(username string) (*user_domain.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+
+	defer cancel()
+
+	req := &pb.GetUserByUsernameRequest{
+		Username: username,
+	}
+
+	resp, err := c.client.GetUserByusername(ctx, req)
 	if err != nil {
 		return nil, c.mapGRPCError(err)
 	}
@@ -60,7 +77,7 @@ func (c *UserGrpcClient) mapGRPCError(err error) error {
 
 	switch st.Code() {
 	case codes.NotFound:
-		return fmt.Errorf("user not found: %w", err)
+		return user_domain.ErrUserNotFound
 	case codes.DeadlineExceeded:
 		return fmt.Errorf("request timeout: %w", err)
 	case codes.Unavailable:
