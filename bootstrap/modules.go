@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"main/internal/application/api/v2"
+	"main/internal/application/http/v2"
 	"main/internal/application/jobs"
 	"main/internal/config"
 	"main/internal/domain"
@@ -12,10 +12,10 @@ import (
 
 	profile_domain "main/internal/domain/profile"
 
-	auth_api "main/internal/application/api/v2/auth"
-	health_api "main/internal/application/api/v2/health"
-	profile_api "main/internal/application/api/v2/profile"
-	swagger_api "main/internal/application/api/v2/swagger"
+	auth_http "main/internal/application/http/v2/auth"
+	health_http "main/internal/application/http/v2/health"
+	profile_http "main/internal/application/http/v2/profile"
+	swagger_http "main/internal/application/http/v2/swagger"
 
 	nats "main/internal/application/nats"
 
@@ -32,11 +32,11 @@ var CommonModules = fx.Options(
 	auth_infrastructure.Module,
 	profile_infrastructure.Module,
 
-	api.Module,
+	http.Module,
 	jobs.Module,
 	nats.Module,
-	health_api.Module,
-	swagger_api.Module,
-	profile_api.Module,
-	auth_api.Module,
+	health_http.Module,
+	swagger_http.Module,
+	profile_http.Module,
+	auth_http.Module,
 )

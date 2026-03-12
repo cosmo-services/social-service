@@ -1,7 +1,7 @@
 package profile_api
 
 import (
-	"main/internal/application/api/v2/auth"
+	"main/internal/application/http/v2/auth"
 	"main/pkg"
 )
 
