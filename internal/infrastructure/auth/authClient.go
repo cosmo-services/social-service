@@ -1,4 +1,4 @@
-package user_infrastructure
+package auth_infrastructure
 
 import (
 	"context"
@@ -11,31 +11,31 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	user_domain "main/internal/domain/user"
+	"main/internal/domain/auth"
 
 	pb "github.com/cosmo-services/grpc-contracts/gen/api/v1"
 )
 
-type UserGrpcClient struct {
+type AuthGrpcClient struct {
 	client  pb.AuthServiceClient
 	conn    *grpc.ClientConn
 	timeout time.Duration
 }
 
-func NewUserGrpcClient(grpcClient *pkg.GrpcClient, env config.Env) (user_domain.UserClient, error) {
+func NewAuthGrpcClient(grpcClient *pkg.GrpcClient, env config.Env) (auth.AuthClient, error) {
 	conn, err := grpcClient.Connect(env.AuthServiceGrpcAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	return &UserGrpcClient{
+	return &AuthGrpcClient{
 		client:  pb.NewAuthServiceClient(conn),
 		conn:    conn,
 		timeout: 15 * time.Second,
 	}, nil
 }
 
-func (c *UserGrpcClient) GetUserById(userId string) (*user_domain.User, error) {
+func (c *AuthGrpcClient) GetUserById(userId string) (*auth.AuthUser, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 
 	defer cancel()
@@ -52,7 +52,7 @@ func (c *UserGrpcClient) GetUserById(userId string) (*user_domain.User, error) {
 	return c.mapToDomainUser(resp), nil
 }
 
-func (c *UserGrpcClient) GetUserByUsername(username string) (*user_domain.User, error) {
+func (c *AuthGrpcClient) GetUserByUsername(username string) (*auth.AuthUser, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 
 	defer cancel()
@@ -61,7 +61,7 @@ func (c *UserGrpcClient) GetUserByUsername(username string) (*user_domain.User, 
 		Username: username,
 	}
 
-	resp, err := c.client.GetUserByusername(ctx, req)
+	resp, err := c.client.GetUserByUsername(ctx, req)
 	if err != nil {
 		return nil, c.mapGRPCError(err)
 	}
@@ -69,7 +69,7 @@ func (c *UserGrpcClient) GetUserByUsername(username string) (*user_domain.User, 
 	return c.mapToDomainUser(resp), nil
 }
 
-func (c *UserGrpcClient) mapGRPCError(err error) error {
+func (c *AuthGrpcClient) mapGRPCError(err error) error {
 	st, ok := status.FromError(err)
 	if !ok {
 		return fmt.Errorf("unexpected error: %w", err)
@@ -77,7 +77,7 @@ func (c *UserGrpcClient) mapGRPCError(err error) error {
 
 	switch st.Code() {
 	case codes.NotFound:
-		return user_domain.ErrUserNotFound
+		return auth.ErrUserNotFound
 	case codes.DeadlineExceeded:
 		return fmt.Errorf("request timeout: %w", err)
 	case codes.Unavailable:
@@ -87,8 +87,8 @@ func (c *UserGrpcClient) mapGRPCError(err error) error {
 	}
 }
 
-func (c *UserGrpcClient) mapToDomainUser(response *pb.GetUserResponse) *user_domain.User {
-	return &user_domain.User{
+func (c *AuthGrpcClient) mapToDomainUser(response *pb.GetUserResponse) *auth.AuthUser {
+	return &auth.AuthUser{
 		ID:        response.User.Id,
 		Email:     response.User.Email,
 		Username:  response.User.Username,

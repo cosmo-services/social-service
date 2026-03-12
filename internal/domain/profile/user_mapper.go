@@ -1,8 +1,8 @@
 package profile
 
-import user_domain "main/internal/domain/user"
+import "main/internal/domain/auth"
 
-func MapUserToProfile(user *user_domain.User) *Profile {
+func MapUserToProfile(user *auth.AuthUser) *Profile {
 	return &Profile{
 		UserId:      user.ID,
 		Username:    user.Username,

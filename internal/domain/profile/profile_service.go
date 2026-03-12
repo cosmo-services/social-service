@@ -4,25 +4,25 @@ import (
 	"errors"
 	"main/internal/domain"
 
-	user_domain "main/internal/domain/user"
+	"main/internal/domain/auth"
 
 	"time"
 )
 
 type ProfileService struct {
 	profileRepo ProfileRepository
-	userClient  user_domain.UserClient
+	authClient  auth.AuthClient
 	eventBus    *domain.EventBus
 }
 
 func NewProfileService(
 	profileRepo ProfileRepository,
-	userClient user_domain.UserClient,
+	authClient auth.AuthClient,
 	eventBus *domain.EventBus,
 ) *ProfileService {
 	return &ProfileService{
 		profileRepo: profileRepo,
-		userClient:  userClient,
+		authClient:  authClient,
 		eventBus:    eventBus,
 	}
 }
@@ -62,11 +62,11 @@ func (s *ProfileService) GetProfile(opts ProfileSearchOptions) (*Profile, error)
 		return nil, err
 	}
 
-	var user *user_domain.User
+	var user *auth.AuthUser
 	if opts.UserID != "" {
-		user, err = s.userClient.GetUserById(opts.UserID)
+		user, err = s.authClient.GetUserById(opts.UserID)
 	} else if opts.Username != "" {
-		user, err = s.userClient.GetUserByUsername(opts.Username)
+		user, err = s.authClient.GetUserByUsername(opts.Username)
 	}
 
 	if err != nil {
@@ -269,7 +269,7 @@ func (s *ProfileService) profileToPublicView(profile *Profile) *ProfileView {
 }
 
 func (s *ProfileService) requestProfileByUserId(userId string) (*Profile, error) {
-	user, err := s.userClient.GetUserById(userId)
+	user, err := s.authClient.GetUserById(userId)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (s *ProfileService) requestProfileByUserId(userId string) (*Profile, error)
 }
 
 func (s *ProfileService) requestProfileByUsername(username string) (*Profile, error) {
-	user, err := s.userClient.GetUserByUsername(username)
+	user, err := s.authClient.GetUserByUsername(username)
 	if err != nil {
 		return nil, err
 	}

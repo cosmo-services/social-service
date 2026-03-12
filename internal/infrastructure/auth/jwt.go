@@ -1,4 +1,4 @@
-package auth
+package auth_infrastructure
 
 import (
 	"errors"
@@ -8,7 +8,6 @@ import (
 	domain "main/internal/domain/auth"
 
 	"github.com/golang-jwt/jwt/v5"
-	"go.uber.org/fx"
 )
 
 type JwtClaims struct {
@@ -46,7 +45,3 @@ func (s *JwtClient) ValidateToken(tokenStr string) (*domain.JwtPayload, error) {
 
 	return nil, errors.New("invalid token")
 }
-
-var Module = fx.Options(
-	fx.Provide(NewJwtClient),
-)

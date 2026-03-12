@@ -1,8 +1,8 @@
-package user
+package auth
 
 import "time"
 
-type User struct {
+type AuthUser struct {
 	ID        string
 	Email     string
 	Username  string

@@ -12,9 +12,10 @@ import (
 type GrpcClient struct {
 	opts        []grpc.DialOption
 	connections []*grpc.ClientConn
+	logger      Logger
 }
 
-func NewGrpcClient() *GrpcClient {
+func NewGrpcClient(logger Logger) *GrpcClient {
 	return &GrpcClient{
 		opts: []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -29,6 +30,7 @@ func NewGrpcClient() *GrpcClient {
 			}),
 		},
 		connections: make([]*grpc.ClientConn, 0),
+		logger:      logger,
 	}
 }
 
@@ -45,6 +47,10 @@ func (c *GrpcClient) Connect(address string) (*grpc.ClientConn, error) {
 
 func (c *GrpcClient) CloseAllConnections() {
 	for _, conn := range c.connections {
-		conn.Close()
+		if err := conn.Close(); err != nil {
+			c.logger.Error(err.Error())
+		}
 	}
+
+	c.logger.Info("all gRPC connections closed")
 }
