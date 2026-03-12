@@ -32,6 +32,8 @@ type Env struct {
 
 	JwtSecret string `mapstructure:"JWT_SECRET"`
 
+	AuthServiceGrpcAddress string `mapstructure:"GRPC_AUTH_ADR"`
+
 	AllowedOrigins []string `mapstructure:"ALLOWED_ORIGINS"`
 }
 
@@ -88,6 +90,8 @@ func (e *Env) bindEnv() {
 	e.JwtSecret = os.Getenv("JWT_SECRET")
 
 	e.MigrationPath = os.Getenv("MIGRATION_PATH")
+
+	e.AuthServiceGrpcAddress = os.Getenv("GRPC_AUTH_ADR")
 
 	if val := os.Getenv("ALLOWED_ORIGINS"); val != "" {
 		e.AllowedOrigins = strings.Split(val, ",")

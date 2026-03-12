@@ -10,11 +10,12 @@ import (
 )
 
 type GrpcClient struct {
-	opts []grpc.DialOption
+	opts        []grpc.DialOption
+	connections []*grpc.ClientConn
 }
 
-func NewGrpcClient() GrpcClient {
-	return GrpcClient{
+func NewGrpcClient() *GrpcClient {
+	return &GrpcClient{
 		opts: []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			grpc.WithDefaultCallOptions(
@@ -27,14 +28,23 @@ func NewGrpcClient() GrpcClient {
 				PermitWithoutStream: true,
 			}),
 		},
+		connections: make([]*grpc.ClientConn, 0),
 	}
 }
 
-func (c GrpcClient) Connect(address string) (*grpc.ClientConn, error) {
+func (c *GrpcClient) Connect(address string) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(address, c.opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gRPC client for %s: %w", address, err)
 	}
 
+	c.connections = append(c.connections, conn)
+
 	return conn, nil
+}
+
+func (c *GrpcClient) CloseAllConnections() {
+	for _, conn := range c.connections {
+		conn.Close()
+	}
 }

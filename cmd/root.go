@@ -26,7 +26,8 @@ func SetupApp(
 	handler pkg.RequestHandler,
 	routes http.Routes,
 	nats *nats.Nats,
-	grpc pkg.GrpcServer,
+	grpcServer pkg.GrpcServer,
+	grpcClient *pkg.GrpcClient,
 	grpcHandler *grpc_v1.GrpcHandler,
 	workers jobs.Workers,
 ) {
@@ -47,7 +48,7 @@ func SetupApp(
 					log.Fatal(err)
 				}
 
-				if err := grpc.Server.Serve(lis); err != nil {
+				if err := grpcServer.Server.Serve(lis); err != nil {
 					log.Fatal(err)
 				}
 			}()
@@ -68,6 +69,8 @@ func SetupApp(
 		},
 		OnStop: func(stopCtx context.Context) error {
 			cancel()
+
+			grpcClient.CloseAllConnections()
 
 			return nil
 		},
