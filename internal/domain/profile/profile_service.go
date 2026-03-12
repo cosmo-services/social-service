@@ -35,7 +35,16 @@ func (s *ProfileService) CreateProfile(userId string, username string, email str
 	return nil
 }
 
-func (s *ProfileService) GetProfileById(requestingUserId string, targetUserId string) (*ProfileView, error) {
+func (s *ProfileService) GetProfile(userID string) (*Profile, error) {
+	profile, err := s.profileRepo.GetByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return profile, nil
+}
+
+func (s *ProfileService) GetProfileViewById(requestingUserId string, targetUserId string) (*ProfileView, error) {
 	profile, err := s.profileRepo.GetByUserID(targetUserId)
 	if err != nil {
 		return nil, err
@@ -44,7 +53,7 @@ func (s *ProfileService) GetProfileById(requestingUserId string, targetUserId st
 	return s.profileToView(requestingUserId, profile)
 }
 
-func (s *ProfileService) GetProfileByUsername(requestingUserId string, targetUsername string) (*ProfileView, error) {
+func (s *ProfileService) GetProfileViewByUsername(requestingUserId string, targetUsername string) (*ProfileView, error) {
 	profile, err := s.profileRepo.GetByUsername(targetUsername)
 	if err != nil {
 		return nil, err

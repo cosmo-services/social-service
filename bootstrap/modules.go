@@ -19,6 +19,8 @@ import (
 
 	nats "main/internal/application/nats"
 
+	grpc_v1 "main/internal/application/grpc/v1"
+
 	"go.uber.org/fx"
 )
 
@@ -35,6 +37,7 @@ var CommonModules = fx.Options(
 	http.Module,
 	jobs.Module,
 	nats.Module,
+	grpc_v1.Module,
 	health_http.Module,
 	swagger_http.Module,
 	profile_http.Module,

@@ -41,7 +41,7 @@ func (controller *ProfileController) GetOwnProfile(ctx *gin.Context) {
 	requestingUserId := ctx.GetString("user_id")
 	targetUserId := requestingUserId
 
-	profile, err := controller.profileService.GetProfileById(requestingUserId, targetUserId)
+	profile, err := controller.profileService.GetProfileViewById(requestingUserId, targetUserId)
 	if err != nil {
 		if errors.Is(err, profile_domain.ErrProfileNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -88,9 +88,9 @@ func (controller *ProfileController) GetUserProfile(ctx *gin.Context) {
 	var err error
 
 	if targetUserId != "" {
-		profile, err = controller.profileService.GetProfileById(requestingUserId, targetUserId)
+		profile, err = controller.profileService.GetProfileViewById(requestingUserId, targetUserId)
 	} else {
-		profile, err = controller.profileService.GetProfileByUsername(requestingUserId, targetUsername)
+		profile, err = controller.profileService.GetProfileViewByUsername(requestingUserId, targetUsername)
 	}
 
 	if err != nil {
