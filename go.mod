@@ -3,7 +3,7 @@ module main
 go 1.24.12
 
 require (
-	github.com/cosmo-services/grpc-contracts v0.0.0-20260312101326-a3a5c2aa1412
+	github.com/cosmo-services/grpc-contracts v1.0.1
 	github.com/gin-gonic/gin v1.11.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/golang-migrate/migrate/v4 v4.19.1
